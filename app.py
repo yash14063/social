@@ -6,9 +6,9 @@ import time
 import urllib.parse
 from datetime import datetime
 
-# --- 1. REAL DATABASE & SETUP ---
+# --- 1. DATABASE SETUP ---
 def init_db():
-    conn = sqlite3.connect('apex_v4.db')
+    conn = sqlite3.connect('apex_v5.db')
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS users
                  (license_key TEXT PRIMARY KEY, customer_name TEXT, plan TEXT, 
@@ -17,7 +17,7 @@ def init_db():
     conn.close()
 
 def create_license(name, plan):
-    conn = sqlite3.connect('apex_v4.db')
+    conn = sqlite3.connect('apex_v5.db')
     key = f"APEX-{plan[:3].upper()}-{random.randint(10000, 99999)}"
     date = datetime.now().strftime("%Y-%m-%d")
     conn.cursor().execute("INSERT INTO users VALUES (?, ?, ?, ?, 1)", (key, name, plan, date))
@@ -26,185 +26,213 @@ def create_license(name, plan):
     return key
 
 def verify_user(key):
-    conn = sqlite3.connect('apex_v4.db')
+    conn = sqlite3.connect('apex_v5.db')
     user = conn.cursor().execute("SELECT * FROM users WHERE license_key=?", (key,)).fetchone()
     conn.close()
     return user
 
 init_db()
 
-# --- 2. UI CONFIGURATION ---
-st.set_page_config(page_title="APEX ULTIMATE SUITE", layout="wide", page_icon="💎")
+# --- 2. WORLD-CLASS UI CONFIG ---
+st.set_page_config(page_title="APEX GLOBAL COMMAND", layout="wide", page_icon="🌐")
 
 st.markdown("""
 <style>
-    .stApp { background-color: #0e1117; color: white; }
-    .feature-card {
-        background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 242, 254, 0.2);
-        padding: 20px; border-radius: 15px; transition: 0.3s;
+    .stApp { background-color: #050505; color: #e0e0e0; }
+    
+    /* Social App Cards */
+    .app-card {
+        background: linear-gradient(145deg, #1e1e1e, #121212);
+        border: 1px solid #333;
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        transition: 0.3s;
+        cursor: pointer;
+        height: 150px;
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
     }
-    .feature-card:hover { border-color: #00f2fe; box-shadow: 0 0 15px rgba(0, 242, 254, 0.2); }
-    h1, h2, h3 { color: #00f2fe; }
-    .stButton>button { background: linear-gradient(90deg, #00f2fe, #4facfe); color: black; font-weight: bold; border: none; }
+    .app-card:hover {
+        border-color: #00f2fe;
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 242, 254, 0.2);
+    }
+    .icon { font-size: 40px; margin-bottom: 10px; }
+    
+    /* Buttons */
+    .stButton>button {
+        width: 100%; border-radius: 8px; font-weight: bold;
+        background: #00f2fe; color: black; border: none;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# --- 3. MAIN NAVIGATION ---
-st.sidebar.title("💎 APEX SUITE V4")
-mode = st.sidebar.radio("ACCESS LEVEL", ["👑 ADMIN PANEL", "🚀 CUSTOMER SUITE"])
+# --- 3. APP DICTIONARY (Data for all apps) ---
+APPS = {
+    "WhatsApp": {"icon": "💬", "color": "#25D366", "action": "Auto-Reply & Status"},
+    "Instagram": {"icon": "📸", "color": "#E1306C", "action": "Caption & Hashtag Gen"},
+    "Facebook": {"icon": "👥", "color": "#1877F2", "action": "Group Post & Ads"},
+    "Twitter / X": {"icon": "❌", "color": "#1DA1F2", "action": "Thread Writer & Sniper"},
+    "LinkedIn": {"icon": "💼", "color": "#0A66C2", "action": "Professional Article Gen"},
+    "YouTube": {"icon": "▶️", "color": "#FF0000", "action": "Title & SEO Tag Gen"},
+    "TikTok": {"icon": "🎵", "color": "#000000", "action": "Viral Script Writer"},
+    "Telegram": {"icon": "✈️", "color": "#0088cc", "action": "Channel Broadcaster"},
+    "Snapchat": {"icon": "👻", "color": "#FFFC00", "action": "Streak & Spotlight Gen"},
+    "Pinterest": {"icon": "📌", "color": "#BD081C", "action": "Pin Description Gen"}
+}
+
+# --- 4. MAIN LOGIC ---
+st.sidebar.title("🌐 APEX COMMAND")
+mode = st.sidebar.radio("PORTAL SELECTOR", ["👑 ADMIN / OWNER", "🚀 CUSTOMER SUITE"])
 
 # ==========================================
-#      👑 ADMIN PANEL (For You)
+#      👑 ADMIN PANEL
 # ==========================================
-if mode == "👑 ADMIN PANEL":
-    st.title("👑 Owner Command Center")
+if mode == "👑 ADMIN / OWNER":
+    st.title("👑 Owner Administration")
     c1, c2 = st.columns([1, 2])
-    
     with c1:
-        st.markdown('<div class="feature-card">', unsafe_allow_html=True)
-        st.subheader("🛠 Issue New License")
-        u_name = st.text_input("Client Name")
-        u_plan = st.selectbox("Plan Type", ["Festival Pro", "Leads & Sales", "Full Automation God-Mode"])
-        
-        if st.button("GENERATE KEY"):
+        st.markdown('<div style="background:#111; padding:20px; border-radius:10px;">', unsafe_allow_html=True)
+        st.subheader("🛠 Issue License")
+        u_name = st.text_input("Customer Name")
+        u_plan = st.selectbox("Plan", ["Starter (3 Apps)", "Pro (All Apps)", "Agency (White Label)"])
+        if st.button("CREATE KEY"):
             if u_name:
                 k = create_license(u_name, u_plan)
-                st.success(f"License Active for {u_name}")
+                st.success("License Created!")
                 st.code(k)
-            else:
-                st.error("Name Required")
         st.markdown('</div>', unsafe_allow_html=True)
-    
     with c2:
-        st.subheader("📊 Active Client Database")
-        conn = sqlite3.connect('apex_v4.db')
+        st.subheader("📊 Active Users")
+        conn = sqlite3.connect('apex_v5.db')
         df = pd.read_sql_query("SELECT * FROM users", conn)
         st.dataframe(df, use_container_width=True)
         conn.close()
 
 # ==========================================
-#      🚀 CUSTOMER SUITE (The Product)
+#      🚀 CUSTOMER SUITE
 # ==========================================
 else:
     if 'auth' not in st.session_state: st.session_state.auth = False
 
+    # LOGIN SCREEN
     if not st.session_state.auth:
-        st.markdown("<br><br><br>", unsafe_allow_html=True)
-        c1, c2, c3 = st.columns([1, 2, 1])
+        st.markdown("<br><br>", unsafe_allow_html=True)
+        c1, c2, c3 = st.columns([1, 1, 1])
         with c2:
-            st.markdown('<div class="feature-card" style="text-align:center;">', unsafe_allow_html=True)
-            st.header("🔐 Secure Login")
+            st.title("🔐 Login")
             key_in = st.text_input("Enter License Key", type="password")
-            if st.button("UNLOCK TOOLS"):
+            if st.button("UNLOCK COMMAND CENTER"):
                 u = verify_user(key_in)
                 if u:
                     st.session_state.auth = True
                     st.session_state.u_data = u
                     st.rerun()
                 else:
-                    st.error("Access Denied")
-            st.markdown('</div>', unsafe_allow_html=True)
+                    st.error("Invalid Key")
 
+    # DASHBOARD SCREEN
     else:
-        # --- LOGGED IN DASHBOARD ---
-        u = st.session_state.u_data
-        st.markdown(f"### Welcome, {u[1]}! (Plan: {u[2]})")
+        user = st.session_state.u_data
+        st.markdown(f"### 👋 Welcome, {user[1]}")
         
-        # TABS FOR REAL FEATURES
-        tabs = st.tabs(["🎉 Festival Greetings", "💎 Leads Generator", "↩️ Auto-Reply", "📱 Status Maker", "🤖 AI Chatbot"])
+        # --- APP SELECTION GRID ---
+        st.markdown("---")
+        st.subheader("📱 Select Platform to Automate")
+        
+        # Create a grid layout for apps
+        app_list = list(APPS.keys())
+        rows = [st.columns(5), st.columns(5)] # 2 rows of 5
+        
+        selected_app = None
+        
+        # Render Buttons as a Grid
+        for i, app_name in enumerate(app_list):
+            row_idx = 0 if i < 5 else 1
+            col_idx = i % 5
+            with rows[row_idx][col_idx]:
+                if st.button(f"{APPS[app_name]['icon']}\n{app_name}", key=app_name, use_container_width=True):
+                    st.session_state.active_app = app_name
 
-        # --- FEATURE 1: FESTIVAL GREETING ---
-        with tabs[0]:
-            st.header("🎉 Viral Festival Wisher")
-            festival = st.selectbox("Select Occasion", ["New Year", "Diwali", "Eid", "Christmas", "Black Friday Sale"])
-            tone = st.radio("Tone", ["Professional", "Fun & Emoji-filled", "Emotional"])
+        st.markdown("---")
+
+        # --- THE WORKSTATION (Shows tools for the selected app) ---
+        if 'active_app' in st.session_state:
+            app = st.session_state.active_app
+            data = APPS[app]
             
-            if st.button("✨ Generate Greeting"):
-                emojis = "🎉✨🎆🎇" if festival == "New Year" else "🪔✨🍬" if festival == "Diwali" else "🌙🤲"
-                msg = f"{emojis} Happy {festival}! \n\nMay this season bring success to you and your family. \n\n- Best wishes from {u[1]}'s Team 🚀"
-                st.text_area("Copy This:", msg, height=150)
+            st.markdown(f"<h1 style='color:{data['color']}'>{data['icon']} {app} Automation Hub</h1>", unsafe_allow_html=True)
+            
+            # SPLIT INTO TABS FOR FUNCTIONALITY
+            t1, t2, t3 = st.tabs(["⚡ AI Content Generator", "🔗 One-Click Poster", "📈 Growth Tools"])
+            
+            # TAB 1: GENERATE CONTENT
+            with t1:
+                topic = st.text_input(f"What is your {app} post about?", placeholder="e.g. New Product Launch")
+                tone = st.select_slider("Select Tone", options=["Professional", "Casual", "Viral/Hype", "Emotional"])
                 
-                # Deep Link to Share
-                encoded = urllib.parse.quote(msg)
-                st.link_button("📤 Share on WhatsApp", f"https://wa.me/?text={encoded}")
+                if st.button(f"✨ Generate {app} Content"):
+                    with st.spinner("AI is crafting the perfect message..."):
+                        time.sleep(1.5)
+                        
+                        # SMART SIMULATION LOGIC
+                        if app == "LinkedIn":
+                            content = f"🚀 Excited to announce: {topic}!\n\nIn today's fast-paced world, innovation is key. That's why we are launching {topic}.\n\n👇 Let me know your thoughts in the comments!\n\n#Innovation #Business #Growth"
+                        elif app == "Instagram":
+                            content = f"{topic} Vibes! ✨\n.\n.\nDon't miss out on this. Double tap if you agree! ❤️\n.\n#Explore #Trending #{topic.replace(' ', '')}"
+                        elif app == "Twitter / X":
+                            content = f"🧵 1/5: Let's talk about {topic}.\n\nA lot of people get this wrong, but here is the truth...\n\n(Thread) 👇 #{topic.replace(' ', '')}"
+                        elif app == "YouTube":
+                            content = f"TITLE: {topic} - Ultimate Guide 2026\n\nDESCRIPTION:\nIn this video, I reveal the secrets of {topic}. Make sure to SUBSCRIBE for more!\n\nTAGS: {topic}, viral, how-to, guide"
+                        else:
+                            content = f"🔥 CHECK THIS OUT: {topic}!\n\nThis is going to change everything. Send me a DM for info! 💬"
+                        
+                        st.session_state.gen_text = content
+                        st.text_area("AI Output:", content, height=200)
 
-        # --- FEATURE 2: LEADS GENERATOR ---
-        with tabs[1]:
-            st.header("💎 B2B Leads Scraper")
-            st.info("This tool simulates scanning local business directories.")
-            niche = st.text_input("Target Niche (e.g. Real Estate, Dentists)")
-            location = st.text_input("Location (e.g. Dubai, New York)")
+            # TAB 2: POSTING LINKS
+            with t2:
+                if 'gen_text' in st.session_state:
+                    encoded = urllib.parse.quote(st.session_state.gen_text)
+                    st.write("Click below to open the app with text pre-filled:")
+                    
+                    # DYNAMIC DEEP LINKS
+                    if app == "Twitter / X":
+                        st.link_button("🐦 Tweet Now", f"https://twitter.com/intent/tweet?text={encoded}")
+                    elif app == "WhatsApp":
+                        st.link_button("💬 Send to WhatsApp", f"https://wa.me/?text={encoded}")
+                    elif app == "Telegram":
+                        st.link_button("✈️ Broadcast on Telegram", f"https://t.me/share/url?url={encoded}")
+                    elif app == "LinkedIn":
+                        st.link_button("💼 Post to LinkedIn", f"https://www.linkedin.com/sharing/share-offsite/?url={encoded}") # Note: LI strictly limits text pre-fill via web
+                    elif app == "Facebook":
+                        st.link_button("👥 Share on Facebook", f"https://www.facebook.com/sharer/sharer.php?u=example.com&quote={encoded}")
+                    else:
+                        st.info(f"📸 For {app}, auto-posting via web is restricted by API.")
+                        st.code(st.session_state.gen_text, language="text")
+                        st.caption("Copy the text above and paste it into the app!")
+                else:
+                    st.warning("Generate content in Tab 1 first!")
+
+            # TAB 3: SPECIFIC GROWTH TOOLS
+            with t3:
+                if app == "YouTube":
+                    st.subheader("🏷️ SEO Tag Generator")
+                    if st.button("Generate Tags"):
+                        st.write("`#viral` `#trending` `#subscribe` `#newvideo` `#fyp`")
+                elif app == "Instagram":
+                    st.subheader("#️⃣ Hashtag Ladder")
+                    st.write("**High Volume:** #Love #InstaGood\n**Mid Volume:** #TechLife #Startup\n**Niche:** #MyBusinessJourney")
+                elif app == "WhatsApp":
+                    st.subheader("📢 Bulk Broadcaster (Simulated)")
+                    st.info("Upload CSV to send to 1000 contacts (Enterprise Plan Only)")
+                else:
+                    st.info(f"Advanced Analytics for {app} coming in Pro Version.")
+
+        else:
+            st.info("👈 Select an App from the grid above to start automating.")
             
-            if st.button("🔍 START SCAN"):
-                with st.status("Scanning Google Maps & LinkedIn..."):
-                    time.sleep(1)
-                    st.write("Extracting phone numbers...")
-                    time.sleep(1)
-                    st.write("Verifying active WhatsApp status...")
-                    time.sleep(1)
-                
-                # Mock Data Generation (To look real)
-                data = {
-                    "Business Name": [f"{niche} Pro {i}" for i in range(1, 6)],
-                    "Phone": [f"+1 555 010{random.randint(0,9)}" for i in range(5)],
-                    "Trust Score": [f"{random.randint(80, 99)}%" for i in range(5)]
-                }
-                st.dataframe(pd.DataFrame(data), use_container_width=True)
-                st.success("5 High-Quality Leads Found! (Upgrade for more)")
-
-        # --- FEATURE 3: AUTO-REPLY SETUP ---
-        with tabs[2]:
-            st.header("↩️ Smart Auto-Reply Config")
-            st.write("Set this text in your WhatsApp Business App under 'Away Message'.")
-            
-            reply_type = st.selectbox("Scenario", ["Out of Office", "Lead Capture", "Support Ticket"])
-            
-            if reply_type == "Out of Office":
-                reply_text = f"Hi! Thanks for contacting {u[1]}. We are currently closed but will get back to you by 9 AM tomorrow. 🌙"
-            elif reply_type == "Lead Capture":
-                reply_text = f"Hello! 👋 Thanks for your interest. Please fill out this short form to get our price list: [Link]"
-            
-            st.code(reply_text)
-            st.caption("Copy this text and paste it into your WhatsApp Business Settings.")
-
-        # --- FEATURE 4: STATUS/STORY MAKER ---
-        with tabs[3]:
-            st.header("📱 Vertical Status Creator")
-            bg_color = st.color_picker("Background Color", "#000000")
-            txt = st.text_input("Status Text", "Flash Sale! 50% Off Today Only!")
-            
-            # HTML Preview simulating a phone screen
-            st.markdown(f"""
-            <div style="width:300px; height:500px; background-color:{bg_color}; color:white; 
-            display:flex; align-items:center; justify-content:center; text-align:center; 
-            border-radius:20px; border:5px solid #333; margin:auto; font-size:24px; font-weight:bold; padding:20px;">
-                {txt}
-            </div>
-            """, unsafe_allow_html=True)
-            st.info("Screenshot the image above to post on Instagram/WhatsApp Status!")
-
-        # --- FEATURE 5: AI CHATBOT ---
-        with tabs[4]:
-            st.header("🤖 APEX Assistant")
-            
-            if "messages" not in st.session_state:
-                st.session_state.messages = [{"role": "assistant", "content": "Hello! I am your bot manager. How can I help you grow today?"}]
-
-            for msg in st.session_state.messages:
-                st.chat_message(msg["role"]).write(msg["content"])
-
-            if prompt := st.chat_input("Ask about marketing, bots, or sales..."):
-                st.session_state.messages.append({"role": "user", "content": prompt})
-                st.chat_message("user").write(prompt)
-                
-                # Simple Logic Response
-                time.sleep(0.5)
-                response = f"That's a great question about '{prompt}'. To improve this, I recommend using our Auto-Reply feature to catch customers instantly!"
-                
-                st.session_state.messages.append({"role": "assistant", "content": response})
-                st.chat_message("assistant").write(response)
-
-        st.divider()
+        st.markdown("---")
         if st.button("🔒 LOGOUT"):
             st.session_state.auth = False
             st.rerun()
