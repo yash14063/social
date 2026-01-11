@@ -73,7 +73,7 @@ def login_user(key):
 
 def real_ai_generation(platform, topic, feature):
     """Generates content using OpenAI."""
-    if OPENAI_API_KEY == "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":
+    if OPENAI_API_KEY == " ":
         return "⚠️ SYSTEM: Please set OpenAI Key in code."
     try:
         client = OpenAI(api_key=OPENAI_API_KEY)
